@@ -9,9 +9,9 @@ and run the following:
 ```bash
 python3 main.py
 ```
-To use Coyote, run the app and create your path. Coyote's points use inches. 
-Then, press "Copy code" to copy the Java code for the path to the clipboard. 
-The code will be in the following format:
+To use Coyote, run the app and create your path. **Coyote's points use 
+inches**. Then, press "Copy code" to copy the Java code for the path to the 
+clipboard. The code will be in the following format:
 ```java
 odo.setPosition(new Pose2D(DistanceUnit.INCH, {}, {}, AngleUnit.DEGREES, {}));
 
