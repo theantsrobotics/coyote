@@ -25,8 +25,8 @@ while (opModeIsActive() && runtime.seconds() < 5.0) {
 ```
 The code generator expects the odometry computer to be named `odo` and a method
 `moveRobotTo` to be implemented by the user that will move the robot to a
-position (e.g. PID-to-position). An example OpMode is provided in 
-[examples](examples).
+position (e.g. PID-to-position / RoadRunner / PedroPathing). An example OpMode
+is provided in [examples](examples).
 
 ## Building
 To install the needed dependencies, run the following in your favorite terminal
