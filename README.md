@@ -4,6 +4,11 @@ robotics. It can generate Java code from the paths generated.
 ![Coyote](images/coyote.png)
 
 ## Usage
+To run Coyote directly, clone this repository, navigate to the directory, 
+and run the following:
+```bash
+python3 main.py
+```
 To use Coyote, run the app and create your path. Coyote's points use inches. 
 Then, press "Copy code" to copy the Java code for the path to the clipboard. 
 The code will be in the following format:
