@@ -1,6 +1,7 @@
 # Coyote
 Coyote is a simple GUI-based tool to generate autonomous paths for FTC 
-robotics. It can generate Java code from the paths generated. 
+robotics. It can generate Java code from the paths generated.
+![Coyote](images/coyote.png)
 
 ## Usage
 To use Coyote, run the app and create your path. Coyote's points use inches. 
