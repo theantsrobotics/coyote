@@ -2,7 +2,7 @@ from cx_Freeze import setup
 
 
 build_exe_options = {
-    "include_files": ["field.png"],
+    "include_files": ["data"],
     "excludes": ["tkinter", "unittest"],
 }
 
