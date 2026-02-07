@@ -1,8 +1,6 @@
 # Coyote
 Coyote is a simple GUI-based tool to generate autonomous paths for FTC 
-robotics. It can generate Java code files from the paths generated. All you 
-need to do after is add motor control (e.g. make shooter motors run when in 
-shooting position).
+robotics. It can generate Java code from the paths generated. 
 
 ## Building
 To install the needed dependencies, run the following in your favorite terminal
