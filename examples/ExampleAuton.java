@@ -1,0 +1,192 @@
+// Example OpMode using Coyote
+
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+
+import java.util.Locale;
+
+
+@Autonomous(name="CoyoteExampleAuton", group="Autonomous")
+public class ExampleAuton extends LinearOpMode {
+
+    double oldTime = 0;
+    private ElapsedTime runtime = new ElapsedTime();
+    
+    // Shooter and intake
+    private DcMotorEx shooter = null;
+    private DcMotorEx intake  = null;
+    
+    // Movement Motors
+    private GoBildaPinpointDriver odo = null;
+    private DcMotorEx leftFrontDrive  = null;
+    private DcMotorEx leftBackDrive   = null;
+    private DcMotorEx rightFrontDrive = null;
+    private DcMotorEx rightBackDrive  = null;
+    
+    // Tune these PID Coefficients for your robot
+    private PIDController xController = new PIDController(0.1, 0.0, 0.015);
+    private PIDController yController = new PIDController(0.05, 0.0, 0.01);
+    private PIDController headingController = new PIDController(0.05, 0.0, 0.01);
+
+    @Override
+    public void runOpMode() {
+        // Motor Initialization
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setDirection(DcMotor.Direction.REVERSE);
+        shooter.setDirection(DcMotor.Direction.FORWARD);
+
+        leftFrontDrive  = hardwareMap.get(DcMotorEx.class, "frontleft");
+        leftBackDrive   = hardwareMap.get(DcMotorEx.class, "backleft");
+        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "frontright");
+        rightBackDrive  = hardwareMap.get(DcMotorEx.class, "backright");
+
+        leftFrontDrive .setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBackDrive  .setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBackDrive .setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftFrontDrive .setDirection(DcMotorEx.Direction.REVERSE);
+        leftBackDrive  .setDirection(DcMotorEx.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotorEx.Direction.FORWARD);
+        rightBackDrive .setDirection(DcMotorEx.Direction.FORWARD);
+
+        // Odometry
+        // This will depend on your robot
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        odo.setOffsets(4.1535435, -6.963599, DistanceUnit.INCH);
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        // odo.setEncoderResolution(13.26291192, DistanceUnit.MM);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                                 GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        odo.resetPosAndIMU();
+
+        // Telemetry
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+        
+        // Wait for start
+        waitForStart();
+        runtime.reset();
+        
+        // Autonomous
+        odo.setPosition(new Pose2D(DistanceUnit.INCH, 60.8, -43.7, AngleUnit.DEGREES, 125.0));
+        
+        // Shoot first three balls
+        runtime.reset();
+        while (opModeIsActive() && runtime.seconds() < 3.0) {
+            moveRobotTo(25.93, -21.5, -45.0);
+            telemetry.addData("Leg 0: ", runtime.seconds());
+            telemetry.update();
+        }
+        shooter.setPower(1.0);
+        while (opModeIsActive() && runtime.seconds() < 5.0) {
+            telemetry.addData("Shoot 0:", runtime.seconds());
+            telemetry.update();
+        }
+        shooter.setPower(0.0);
+        
+        // Intake next three balls
+        runtime.reset();
+        intake.setPower(1.0);
+        while (opModeIsActive() && runtime.seconds() < 3.0) {
+            moveRobotTo(11.74, -29.85, -90.0);
+            telemetry.addData("Leg 1: ", runtime.seconds());
+            telemetry.update();
+        }
+        runtime.reset();
+        while (opModeIsActive() && runtime.seconds() < 3.0) {
+            moveRobotTo(11.56, -55.85, -90.0);
+            telemetry.addData("Leg 2: ", runtime.seconds());
+            telemetry.update();
+        }
+        intake.setPower(0.0);
+        
+        // Shoot intaken three balls
+        runtime.reset();
+        while (opModeIsActive() && runtime.seconds() < 3.0) {
+            moveRobotTo(27.41, -22.94, -45.0);
+            telemetry.addData("Leg 3: ", runtime.seconds());
+            telemetry.update();
+        }
+        shooter.setPower(1.0);
+        while (opModeIsActive() && runtime.seconds() < 5.0) {
+            telemetry.addData("Shoot 1:", runtime.seconds());
+            telemetry.update();
+        }
+        shooter.setPower(0.0);
+        
+        // End
+        leftFrontDrive .setPower(0.0); 
+        leftBackDrive  .setPower(0.0);
+        rightFrontDrive.setPower(0.0);
+        rightBackDrive .setPower(0.0);
+        intake.setPower(0.0);
+        shooter.setPower(0.0);
+    }
+
+    void moveRobotTo(double x, double y, double heading) {
+        odo.update();
+        Pose2D pos = odo.getPosition();
+
+        xController.update(pos.getX(DistanceUnit.INCH) - x);
+        yController.update(pos.getY(DistanceUnit.INCH) - y);
+        headingController.update(odo.getHeading(UnnormalizedAngleUnit.DEGREES) - heading);
+
+        double xSum  = -xController.getSum(); // Left is positive
+        double ySum  =  yController.getSum();
+        double angle = pos.getHeading(AngleUnit.RADIANS);
+        
+        // Rotate Vectors
+        double axial   = xSum * Math.cos(angle) - ySum * Math.sin(angle);
+        double lateral = xSum * Math.sin(angle) + ySum * Math.cos(angle);
+        double yaw     = headingController.getSum();
+
+        double leftFrontPower  = axial + lateral + yaw;
+        double rightFrontPower = axial - lateral - yaw;
+        double leftBackPower   = axial - lateral + yaw;
+        double rightBackPower  = axial + lateral - yaw;
+        
+        // The following is taken from an FtcRobotController sample
+        double max;
+        // Normalize the values so no wheel power exceeds 100%
+        // This ensures that the robot maintains the desired motion.
+        max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+        max = Math.max(max, Math.abs(leftBackPower));
+        max = Math.max(max, Math.abs(rightBackPower));
+
+        if (max > 1.0) {
+            leftFrontPower /= max;
+            rightFrontPower /= max;
+            leftBackPower /= max;
+            rightBackPower /= max;
+        }
+
+        // Send calculated power to wheels
+        leftFrontDrive.setPower(leftFrontPower);
+        rightFrontDrive.setPower(rightFrontPower);
+        leftBackDrive.setPower(leftBackPower);
+        rightBackDrive.setPower(rightBackPower);
+    }
+}
+

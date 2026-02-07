@@ -17,7 +17,7 @@ from panel import Input
 from panel import Panel
 
 
-def gen_img_path(*args: str):
+def gen_data_path(*args: str):
     if getattr(sys, "frozen", False):
         directory = sys.prefix
     else:
@@ -82,7 +82,7 @@ class Game(object):
         )
         self._images = {
             'field': pg.transform.scale(
-                pg.image.load(gen_img_path('field.png')).convert(),
+                pg.image.load(gen_data_path('field.png')).convert(),
                 (self._SCREEN_SIZE[1], self._SCREEN_SIZE[1]),
             )
         }
@@ -109,17 +109,17 @@ class Game(object):
         self._widgets = {
             'robot': {
                 'show': Toggle(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 110),
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 130),
                     font=self._FONTS['main'],
                 ),
                 'width': Input(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 130),
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 150),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
                 ),
                 'length': Input(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 150),
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 170),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
@@ -127,26 +127,26 @@ class Game(object):
             },
             'point': {
                 'x': Input(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 210),
-                    width=200,
-                    max_chars=25,
-                    font=self._FONTS['main'],
-                ),
-                'y': Input(
                     (self._FIELD_IMAGE_SIZE[0] + 60, 230),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
                 ),
-                'heading': Input(
+                'y': Input(
                     (self._FIELD_IMAGE_SIZE[0] + 60, 250),
+                    width=200,
+                    max_chars=25,
+                    font=self._FONTS['main'],
+                ),
+                'heading': Input(
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 270),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
                 ),
             },
             'points': Label(
-                (self._FIELD_IMAGE_SIZE[0] + 10, 310),
+                (self._FIELD_IMAGE_SIZE[0] + 10, 330),
                 text='',
                 font=self._FONTS['main'],
             ),
@@ -173,54 +173,60 @@ class Game(object):
                     func=self._flip_path,
                     font=self._FONTS['main'],
                 ),
+                Button(
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 70),
+                    text='Copy code',
+                    func=self._copy_code,
+                    font=self._FONTS['main'],
+                ),
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 90),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 110),
                     text='Robot Display',
                     font=self._FONTS['title'],
                 ),
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 110),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 130),
                     text='Show',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['robot']['show'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 130),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 150),
                     text='Widt',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['robot']['width'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 150),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 170),
                     text='Leng',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['robot']['length'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 190),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 210),
                     text='Point',
                     font=self._FONTS['title'],
                 ),
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 210),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 230),
                     text='X',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['point']['x'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 230),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 250),
                     text='Y',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['point']['y'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 250),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 270),
                     text='Head',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['point']['heading'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 290),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 310),
                     text='Points',
                     font=self._FONTS['title'],
                 ),
@@ -332,6 +338,23 @@ class Game(object):
             point[1] = self._FIELD_IMAGE_SIZE[1] - point[1]
         self._finish_change()
         self._update_widgets()
+
+    def _copy_code(self: Self) -> None:
+        if self._points:
+            with open(gen_data_path('code', 'start.txt')) as file:
+                code = file.read().format(
+                    self._points[0][0][0],
+                    self._points[0][0][1],
+                    self._points[0][1],
+                )
+            with open(gen_data_path('code', 'leg.txt')) as file:
+                leg = file.read()
+            for dex, point in enumerate(self._points[1:]):
+                code += leg.format(point[0][0], point[0][1], point[1], dex)
+            pg.scrap.put_text(code)
+            pg.display.message_box('Code copied to clipboard', '')
+            return None
+        pg.display.message_box('No points set', '')
 
     def _finish_change(self: Self) -> None:
         if self._change < len(self._history) - 1:

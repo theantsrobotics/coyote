@@ -1,0 +1,6 @@
+runtime.reset();
+while (opModeIsActive() && runtime.seconds() < 5.0) {{
+    moveRobotTo({}, {}, {});
+    telemetry.addData("Leg {}: ", runtime.seconds());
+    telemetry.update();
+}}
