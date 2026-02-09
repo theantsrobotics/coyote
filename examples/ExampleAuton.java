@@ -144,7 +144,8 @@ public class ExampleAuton extends LinearOpMode {
         intake.setPower(0.0);
         shooter.setPower(0.0);
     }
-
+    
+    // Using PID-to-Position, but you can use Roadrunner or PedroPathing
     void moveRobotTo(double x, double y, double heading) {
         odo.update();
         Pose2D pos = odo.getPosition();
