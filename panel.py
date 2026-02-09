@@ -1,4 +1,5 @@
 from typing import Self
+from typing import Real
 from typing import Optional
 from typing import Callable
 
