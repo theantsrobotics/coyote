@@ -29,6 +29,13 @@ position (e.g. PID-to-position / RoadRunner / PedroPathing). It also generates
 each leg to be 5.0 seconds **(you should definitely change this)**. An example 
 OpMode is provided in [examples](examples).
 
+To visualize your path, press the "Visualize" button. **The visualizer will 
+move the robot in a straight line from point to point. This may be different 
+than what will actually happen if you are using a path follower that follows 
+curved paths, such as RoadRunner.**
+
+Changing the field image is as easy as replacing `field.png` in `data/images`.
+
 ## Building
 To install the needed dependencies, run the following in your favorite terminal
 emulator:

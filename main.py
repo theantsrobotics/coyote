@@ -9,6 +9,7 @@ from typing import Self
 
 import pygame as pg
 from pygame.typing import Point
+from pygame.typing import ColorLike
 
 from panel import Surface
 from panel import Label
@@ -62,6 +63,7 @@ class Game(object):
             'line': (255, 0, 0),
             'heading': (0, 255, 255),
             'robot': (0, 0, 255), # cannot be (0, 0, 0)
+            'visualizer': (255, 255, 0),
         }
         self._KEYS = {
             'mod': (
@@ -105,22 +107,40 @@ class Game(object):
         # History
         self._history = [copy.deepcopy(self._screen_points)] # screen points
         self._change = 0
+
+        # Visualizer
+        self._visualizer_time = 1.25
+        self._visualizer_timer = 0
+        self._visualizer_leg = -1
+        self._visualizer_speed = 150
         
         # Widgets
         self._widgets = {
-            'robot': {
-                'show': Toggle(
+            'visualizer': {
+                'smooth': Toggle(
                     (self._FIELD_IMAGE_SIZE[0] + 60, 130),
                     font=self._FONTS['main'],
                 ),
-                'width': Input(
+                'speed': Input(
                     (self._FIELD_IMAGE_SIZE[0] + 60, 150),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
                 ),
+            },
+            'robot': {
+                'show': Toggle(
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 230),
+                    font=self._FONTS['main'],
+                ),
+                'width': Input(
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 250),
+                    width=200,
+                    max_chars=25,
+                    font=self._FONTS['main'],
+                ),
                 'length': Input(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 170),
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 270),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
@@ -128,30 +148,32 @@ class Game(object):
             },
             'point': {
                 'x': Input(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 230),
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 330),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
                 ),
                 'y': Input(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 250),
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 350),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
                 ),
                 'heading': Input(
-                    (self._FIELD_IMAGE_SIZE[0] + 60, 270),
+                    (self._FIELD_IMAGE_SIZE[0] + 60, 370),
                     width=200,
                     max_chars=25,
                     font=self._FONTS['main'],
                 ),
             },
             'points': Label(
-                (self._FIELD_IMAGE_SIZE[0] + 10, 330),
+                (self._FIELD_IMAGE_SIZE[0] + 10, 430),
                 text='',
                 font=self._FONTS['main'],
             ),
         }
+        self._widgets['visualizer']['smooth'].state = True
+        self._widgets['visualizer']['speed'].text = str(self._visualizer_speed)
         self._widgets['robot']['show'].state = True
         self._widgets['robot']['length'].text = str(self._robot_size[0])
         self._widgets['robot']['width'].text = str(self._robot_size[1])
@@ -182,52 +204,75 @@ class Game(object):
                 ),
                 Label(
                     (self._FIELD_IMAGE_SIZE[0] + 10, 110),
-                    text='Robot Display',
+                    text='Visualizer',
                     font=self._FONTS['title'],
                 ),
                 Label(
                     (self._FIELD_IMAGE_SIZE[0] + 10, 130),
+                    text='Smoo',
+                    font=self._FONTS['main'],
+                ),
+                self._widgets['visualizer']['smooth'],
+                Label(
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 150),
+                    text='Spee',
+                    font=self._FONTS['main'],
+                ),
+                self._widgets['visualizer']['speed'],
+                Button(
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 170),
+                    text='Visualize',
+                    func=self._visualize,
+                    font=self._FONTS['main'],
+                ),
+                Label(
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 210),
+                    text='Robot Display',
+                    font=self._FONTS['title'],
+                ),
+                Label(
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 230),
                     text='Show',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['robot']['show'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 150),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 250),
                     text='Widt',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['robot']['width'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 170),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 270),
                     text='Leng',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['robot']['length'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 210),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 310),
                     text='Point',
                     font=self._FONTS['title'],
                 ),
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 230),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 330),
                     text='X',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['point']['x'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 250),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 350),
                     text='Y',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['point']['y'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 270),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 370),
                     text='Head',
                     font=self._FONTS['main'],
                 ),
                 self._widgets['point']['heading'],
                 Label(
-                    (self._FIELD_IMAGE_SIZE[0] + 10, 310),
+                    (self._FIELD_IMAGE_SIZE[0] + 10, 410),
                     text='Points',
                     font=self._FONTS['title'],
                 ),
@@ -237,6 +282,12 @@ class Game(object):
         )
 
     def _update_widgets(self: Self) -> None:
+        try:
+            speed = float(self._widgets['visualizer']['speed'].text)
+        except:
+            speed = 150
+        self._visualizer_speed = speed
+
         text = ''
         for point in self._points:
             text += '['
@@ -300,7 +351,7 @@ class Game(object):
             * self._FIELD_SIZE[1],
         )
 
-    def _gen_screen_pos(self: Self, field_pos: Point) -> tuple:
+    def _gen_screen_pos(self: Self, field_pos: Point) -> pg.Vector2:
         return pg.Vector2(
             (field_pos[0] / self._FIELD_SIZE[0] + 0.5)
             * self._FIELD_IMAGE_SIZE[0],
@@ -357,12 +408,52 @@ class Game(object):
             return None
         pg.display.message_box('No points set', '')
 
+    def _visualize(self: Self) -> None:
+        self._visualizer_leg = 0 if self._points else -1
+        self._visualizer_timer = 0
+
     def _finish_change(self: Self) -> None:
         if self._change < len(self._history) - 1:
             self._history = self._history[:self._change + 1]
         if self._history[-1] != self._points:
             self._change += 1
             self._history.append(copy.deepcopy(self._points))
+
+    def _draw_point(self: Self,
+                    point: Point,
+                    heading: Real,
+                    point_color: ColorLike,
+                    robot_color: ColorLike,
+                    heading_color: ColorLike) -> None:
+        pg.draw.aacircle(
+            self._screen, point_color, point, self._point_radius,
+        )
+        if self._widgets['robot']['show'].state: # Drawing Robot
+            surf = pg.Surface(self._robot_rect_size)
+            surf.set_colorkey((0, 0, 0))
+            pg.draw.rect(
+                surf,
+                robot_color,
+                ((0, 0), self._robot_rect_size),
+                width=self._robot_line_width,
+            )
+            surf = pg.transform.rotate(surf, heading)
+            self._screen.blit(
+                surf,
+                (point[0] - surf.width / 2,
+                 point[1] - surf.height / 2),
+            )
+        angle = math.radians(heading)
+        vector = (
+            pg.Vector2(math.cos(angle), -math.sin(angle))
+            * self._heading_length
+        )
+        pg.draw.aaline(
+            self._screen,
+            heading_color,
+            point,
+            point + vector,
+        )
 
     def run(self: Self) -> None:
         self._running = 1
@@ -470,30 +561,19 @@ class Game(object):
                     self._screen_points,
                     self._line_width,
                 )
+            # i know its not enumerate
             for dex, point in enumerate(self._screen_points):
-                heading = self._points[dex][1]
-                color = (
+                point_color = (
                     self._COLORS['selected'] if dex == self._selected
                     else self._COLORS['point']
                 )
-                pg.draw.aacircle(
-                    self._screen, color, point, self._point_radius,
+                self._draw_point(
+                    point,
+                    self._points[dex][1],
+                    point_color,
+                    self._COLORS['robot'],
+                    self._COLORS['heading'],
                 )
-                if self._widgets['robot']['show'].state: # Drawing Robot
-                    surf = pg.Surface(self._robot_rect_size)
-                    surf.set_colorkey((0, 0, 0))
-                    pg.draw.rect(
-                        surf,
-                        self._COLORS['robot'],
-                        ((0, 0), self._robot_rect_size),
-                        width=self._robot_line_width,
-                    )
-                    surf = pg.transform.rotate(surf, heading)
-                    self._screen.blit(
-                        surf,
-                        (point[0] - surf.width / 2,
-                         point[1] - surf.height / 2),
-                    )
                 self._screen.blit(
                     self._FONTS['main'].render(
                         str(dex),
@@ -502,17 +582,45 @@ class Game(object):
                     ),
                     point,
                 )
-                angle = math.radians(heading)
-                vector = (
-                    pg.Vector2(math.cos(angle), -math.sin(angle))
-                    * self._heading_length
+
+            # Draw Visualization
+            if -1 < self._visualizer_leg < len(self._points) - 1:
+                # Math
+                vector1 = self._screen_points[self._visualizer_leg]
+                vector2 = self._screen_points[self._visualizer_leg + 1]
+                timer = pg.math.clamp(
+                    self._visualizer_timer / self._visualizer_time, 0, 1,
                 )
-                pg.draw.aaline(
-                    self._screen,
-                    self._COLORS['heading'],
-                    point,
-                    point + vector,
+                if self._widgets['visualizer']['smooth'].state:
+                    point = vector1.smoothstep(vector2, timer)
+                    heading = pg.math.smoothstep(
+                        self._points[self._visualizer_leg][1],
+                        self._points[self._visualizer_leg + 1][1],
+                        timer,
+                    )
+                else:
+                    point = vector1.lerp(vector2, timer)
+                    heading = pg.math.lerp(
+                        self._points[self._visualizer_leg][1],
+                        self._points[self._visualizer_leg + 1][1],
+                        timer,
+                    )
+                # Draw
+                color = self._COLORS['visualizer']
+                self._draw_point(point, heading, color, color, color)
+                # Timer
+                self._visualizer_timer = min(
+                    self._visualizer_timer
+                    + (delta_time
+                       / vector1.distance_to(vector2)
+                       * self._visualizer_speed),
+                    self._visualizer_time,
                 )
+                if self._visualizer_timer >= self._visualizer_time:
+                    self._visualizer_leg += 1
+                    self._visualizer_timer = 0
+                    if self._visualizer_leg >= len(self._points) - 1:
+                        self._visualizer_leg = -1
 
             # Draw Panel
             self._panel.render(self._screen)
