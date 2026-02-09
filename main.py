@@ -74,7 +74,7 @@ class Game(object):
         }
         self._FIELD_SIZE = (144, 144)
         self._FIELD_IMAGE_SIZE = (self._SCREEN_SIZE[1], self._SCREEN_SIZE[1])
-        self._robot_size = [16, 15.5]
+        self._robot_size = [18, 18]
         self._robot_rect_size = (
             self._robot_size[0]
             / self._FIELD_SIZE[0]
