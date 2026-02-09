@@ -12,7 +12,10 @@ and run the following:
 python3 main.py
 ```
 To use Coyote, run the app and create your path. **Coyote's points use 
-inches**. Then, press "Copy code" to copy the Java code for the path to the 
+inches**.
+
+### Code Generation
+Press "Copy code" to copy the Java code for the path to the 
 clipboard. The code will be in the following format:
 ```java
 odo.setPosition(new Pose2D(DistanceUnit.INCH, {}, {}, AngleUnit.DEGREES, {}));
@@ -31,6 +34,7 @@ position (e.g. PID-to-position / RoadRunner / PedroPathing). It also generates
 each leg to be 5.0 seconds **(you should definitely change this)**. An example 
 OpMode is provided in [examples](examples).
 
+### Path Visualization
 To visualize your path, press the "Visualize" button. **The visualizer will 
 move the robot in a straight line from point to point. This may be different 
 than what will actually happen if you are using a path follower that follows 
