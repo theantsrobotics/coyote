@@ -4,6 +4,7 @@ import platform
 import math
 import time
 import copy
+from numbers import Real
 from typing import Self
 
 import pygame as pg
