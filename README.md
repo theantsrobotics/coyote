@@ -1,6 +1,7 @@
 # Coyote
 Coyote is a simple GUI-based tool to generate autonomous paths for FTC 
 robotics. It can generate Java code from the paths generated.
+
 ![Coyote](images/coyote.png)
 
 ## Usage
@@ -33,6 +34,7 @@ To visualize your path, press the "Visualize" button. **The visualizer will
 move the robot in a straight line from point to point. This may be different 
 than what will actually happen if you are using a path follower that follows 
 curved paths, such as RoadRunner.**
+
 ![Visualizer](images/visualizer.gif)
 
 Changing the field image is as easy as replacing `field.png` in `data/images`.
