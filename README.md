@@ -56,6 +56,10 @@ python3 setup.py build
 ```
 The executable will be somewhere in the `build` directory.
 
+## Contributing
+Pull requests and issues are both welcome. We want to make Coyote as best as 
+possible, so feel free to contribute!
+
 ## Credits
 - Team Juice 16236 for FTC DECODE field image
 
