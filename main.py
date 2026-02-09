@@ -49,8 +49,8 @@ class Game(object):
         pg.key.set_repeat(300, 75)
 
         self._FONTS = {
-            'title': pg.font.SysFont('Andale Mono', 16),
-            'main': pg.font.SysFont('Andale Mono', 16),
+            'title': pg.font.SysFont('Arial', 16),
+            'main': pg.font.SysFont('Arial', 16),
         }
         self._FONTS['title'].underline = 1
 
