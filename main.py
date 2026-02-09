@@ -282,24 +282,35 @@ class Game(object):
         )
 
     def _update_widgets(self: Self) -> None:
+        # Visualizer
         try:
             speed = float(self._widgets['visualizer']['speed'].text)
         except:
             speed = 150
         self._visualizer_speed = speed
-
-        text = ''
-        for point in self._points:
-            text += '['
-            text += str(round(point[0][0], self._field_pos_precision))
-            text += ', '
-            text += str(round(point[0][1], self._field_pos_precision))
-            text += ', '
-            text += str(round(point[1], self._field_pos_precision))
-            text += ']'
-            text += '\n'
-        self._widgets['points'].text = text
         
+        # Robot Display
+        width = self._widgets['robot']['width']
+        try:
+            width = float(width.text)
+        except:
+            width = 18
+        length = self._widgets['robot']['length']
+        try:
+            length = float(length.text)
+        except:
+            length = 18
+        self._robot_size = (length, width)
+        self._robot_rect_size = (
+            self._robot_size[0]
+            / self._FIELD_SIZE[0]
+            * self._FIELD_IMAGE_SIZE[0],
+            self._robot_size[1]
+            / self._FIELD_SIZE[1]
+            * self._FIELD_IMAGE_SIZE[1],
+        )
+
+        # Selected Point
         if self._selected != -1:
             # I'm not sure if there's a better way
             x = self._widgets['point']['x']
@@ -321,25 +332,18 @@ class Game(object):
                 heading = 0
             self._points[self._selected][1] = heading
 
-        width = self._widgets['robot']['width']
-        try:
-            width = float(width.text)
-        except:
-            width = 18
-        length = self._widgets['robot']['length']
-        try:
-            length = float(length.text)
-        except:
-            length = 18
-        self._robot_size = (length, width)
-        self._robot_rect_size = (
-            self._robot_size[0]
-            / self._FIELD_SIZE[0]
-            * self._FIELD_IMAGE_SIZE[0],
-            self._robot_size[1]
-            / self._FIELD_SIZE[1]
-            * self._FIELD_IMAGE_SIZE[1],
-        )
+        # Points
+        text = ''
+        for point in self._points:
+            text += '['
+            text += str(round(point[0][0], self._field_pos_precision))
+            text += ', '
+            text += str(round(point[0][1], self._field_pos_precision))
+            text += ', '
+            text += str(round(point[1], self._field_pos_precision))
+            text += ']'
+            text += '\n'
+        self._widgets['points'].text = text
 
     def _gen_field_pos(self: Self, screen_pos: Point) -> tuple:
         return (
