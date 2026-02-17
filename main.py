@@ -475,7 +475,7 @@ class Game(object):
                     self._running = 0
                 elif (event.type == pg.MOUSEBUTTONDOWN
                       and event.pos[0] < self._FIELD_IMAGE_SIZE[0]):
-                    # clicking - creating on a line - creating is priority
+                    # clicking, creating on a line, creating is priority order
                     vector = pg.Vector2(event.pos)
                     for i in range(len(self._screen_points) - 1, -1, -1):
                         point = self._screen_points[i]
