@@ -490,6 +490,8 @@ class Game(object):
                                 continue
                             # https://stackoverflow.com/a/1501725/24845999
                             # projects point onto line segment
+                            # vector projection formula but 
+                            # without final multiplication
                             # then calculates distance to that point
                             prev = self._screen_points[dex - 1]
                             difference = point - prev
